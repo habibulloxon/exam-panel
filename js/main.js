@@ -1,90 +1,124 @@
-const maximumResult = 150;
-const passPercentage = 40;
+const TOTAL_MARK = 150;
+const PASS_PERCENT = 40;
 
-const createSingleElement = (elementName, className, textContent) =>{
-    const createdSingleElement = document.createElement(elementName);
-    createdSingleElement.className = className;
+const createElement = function (elName, className, textContent) {
+  const createdElement = document.createElement(elName);
+  createdElement.className = className;
 
-    if (textContent) {
-        createdSingleElement.textContent = textContent;
-    } 
-    return createdSingleElement;
+  if (textContent) {
+    createdElement.textContent = textContent;
+  }
+
+  return createdElement
 }
 
-const addZero = (number) => {
-    return number < 10 ? "0" + number : number
+const appendChildren = function (parentElement, children) {
+  for (let i = 0; i < children.length; i++) {
+    parentElement.append(children[i])
+  }
 }
 
-const appendElements = (parentElement, children) =>{
-    for (let i = 0; i < children.length; i++) {
-        parentElement.appendChild(children[i])
+const addZero = function (number) {
+  return number < 10 ? "0" + number : number
+}
+
+const showDate = function (dateString) {
+  const date = new Date(dateString);
+
+  return `${addZero(date.getDate())}.${addZero(date.getMonth() + 1)}.${date.getFullYear()} ${addZero(date.getHours())}:${addZero(date.getMinutes())}`;
+}
+
+const renderStudent = function (student) {
+  const {
+    id,
+    name: stName,
+    lastName,
+    mark,
+    markedDate
+  } = student;
+
+  const studentRow = document.createElement("tr");
+
+  const studentId = createElement("td", "py-3 text-center", id)
+  const studentName = createElement("td", "py-3 fw-bold", `${stName} ${lastName}`);
+  const studentMarkedDate = createElement("td", "py-3", showDate(markedDate));
+
+  const markPercent = Math.round(mark * 100 / TOTAL_MARK);
+  const studentMark = createElement("td", "py-3 text-center", markPercent + "%");
+
+  const studentPassStatus = createElement("td", "py-3 text-center");
+  const studentPassParagraph = createElement("p", "h5");
+  const studentPassBadge = createElement("span", "badge rounded-pill")
+
+  if (markPercent >= PASS_PERCENT) {
+    studentPassBadge.textContent = "Pass";
+    studentPassBadge.classList.add("bg-success");
+  } else {
+    studentPassBadge.textContent = "Fail";
+    studentPassBadge.classList.add("bg-danger");
+  }
+  studentPassParagraph.append(studentPassBadge);
+  studentPassStatus.append(studentPassParagraph);
+
+  const studentEdit = createElement("td", "py-3 text-center");
+  const studentEditBtn = createElement("button", "btn btn-outline-secondary");
+  const studentEditIcon = createElement("i", "fa-solid fa-pen");
+  studentEditBtn.append(studentEditIcon);
+  studentEdit.append(studentEditBtn);
+
+
+  const studentDel = createElement("td", "py-3 text-center");
+  const studentDelBtn = createElement("button", "btn btn-outline-danger");
+  const studentDelIcon = createElement("i", "fa-solid fa-trash");
+  studentDelIcon.style.pointerEvents = "none";
+  studentDelBtn.append(studentDelIcon);
+  studentDel.append(studentDelBtn);
+  studentDelBtn.setAttribute("data-student", id);
+
+  appendChildren(studentRow, [studentId, studentName, studentMarkedDate, studentMark, studentPassStatus, studentEdit, studentDel]);
+
+  return studentRow;
+}
+
+const studentsTable = document.querySelector("#students-table");
+const studentsTableBody = document.querySelector("#students-table-body");
+
+const renderStudents = function () {
+  studentsTableBody.innerHTML = "";
+  
+  students.forEach(function (student) {
+  const studentRow = renderStudent(student);
+  studentsTableBody.append(studentRow);
+  })
+}
+renderStudents();
+
+const addStudentModalEl = document.querySelector("#edit-student-modal");
+const addStudentModal = new bootstrap.Modal(addStudentModalEl);
+
+// ADD student
+
+const form = document.getElementById("add-form")
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const element = e.target.elements;
+
+    const nameSt = element.name.value;
+    const lastName = element.lastname.value;
+    const mark = +element.mark.value;
+
+    if(nameSt.trim() && lastName.trim() && mark >= 0 && mark <= TOTAL_MARK){
+        const newStudent = {
+            id: Math.floor(Math.random() * 1000),
+            name: nameSt,
+            lastName: lastName,
+            mark: mark,
+            markedDate: new Date().toISOString()
+        }
+        students.push(newStudent)
     }
-    return parentElement;
-} 
+    renderStudents(); 
+    form.reset();
 
-const showDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${addZero(date.getDate())}/ ${addZero(date.getMonth() + 1)}/ 
-    ${addZero(date.getFullYear())}/ ${addZero(date.getHours())}`
-}
-
-const renderStudents = (student) => {
-    const {
-        id,
-        name: stName,
-        lastName,
-        mark,
-        markedDate
-    } = student;
-
-    const studentRow = document.createSingleElement("tr");
-    const studentId = document.createSingleElement("td", "text-center", id);
-    const studentName = document.createSingleElement("td", "", `${stName} ${lastName}`);
-    const studentMarkedDate = document.createSingleElement("td", "", markedDate);
-
-    const markPercentage = Math.round(mark * 100 / maximumResult);
-    const studentMark = document.createSingleElement("td", "text-center", markPercentage + "%");
-    const studentStatus = document.createSingleElement("td", "text-center");
-    const studentParagraph = document.createSingleElement("p", "h5");
-    const studentSpan = document.createSingleElement("span", "badge rounded-pill");
-
-    if (markPercentage >= passPercentage) {
-        studentParagraph.textContent = "Pass"
-        studentSpan.classList.add("bg-success")
-    } else{
-        studentParagraph.textContent = "Fail"
-        studentSpan.classList.add("bg-danger")
-    }
-
-    const studentEdit = document.createSingleElement("td", "py-3 text-center");
-    const studentEditBtn = document.createSingleElement("button", "btn btn-outline-secondary");
-    const studentEditBtnIcon = document.createSingleElement("i", "fa-solid fa-pen");
-
-    studentEdit.appendChild(studentEditBtn);
-    studentEditBtn.appendChild(studentEditBtnIcon)
-
-    const studentDelete = document.createSingleElement("td", "py-3 text-center");
-    const studentDeleteBtn = document.createSingleElement("button", "btn btn-outline-danger");
-    const studentDeleteBtnIcon = document.createSingleElement("i", "fa-solid fa-pen");
-
-    studentDelete.appendChild(studentDeleteBtn);
-    studentDeleteBtn.appendChild(studentDeleteBtnIcon)
-
-    appendElements(studentRow, [studentId, studentName, studentMarkedDate, studentMark, studentStatus, studentEdit, studentDelete])
-
-    return studentRow;
-}
-
-const studentsTable = document.getElementById("students-table")
-const studentsTableBody = document.getElementById("students-table-body")
-
-const renderUiStudents = () => {
-    studentsTable.innerHTML = ""
-
-    students.forEach(student => {
-        const studentRow = renderStudents(student)
-        studentsTable.append(studentRow)
-    });
-}
-
-renderUiStudents()
+    addStudentModal.hide()
+})
