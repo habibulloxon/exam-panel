@@ -82,14 +82,27 @@ const renderStudent = function (student) {
 
 const studentsTable = document.querySelector("#students-table");
 const studentsTableBody = document.querySelector("#students-table-body");
+const elementCount = document.querySelector(".count")
+const percentDisplay = document.getElementById('percent')
+
+
 
 const renderStudents = function () {
+  let sum = 0
+  students.forEach((student) => {
+    sum += student.mark
+  })
+  const percent = Math.round(sum * 100 / TOTAL_MARK / students.length)
+
   studentsTableBody.innerHTML = "";
-  
+  elementCount.innerHTML = `Count: ${students.length}`
+  percentDisplay.innerHTML = `Average mark: ${percent}%`
+
   students.forEach(function (student) {
   const studentRow = renderStudent(student);
   studentsTableBody.append(studentRow);
   })
+  console.log(sum);
 }
 renderStudents();
 
@@ -121,4 +134,18 @@ form.addEventListener("submit", function(e) {
     form.reset();
 
     addStudentModal.hide()
+})
+
+studentsTable.addEventListener("click", (e) => {
+
+  if(e.target.matches(".btn-outline-danger")){
+    const clickedBtn = +e.target.dataset.student
+
+    const clickedStudent = students.findIndex((student) => {
+      return student.id == clickedBtn
+    })
+
+    students.splice(clickedStudent, 1)
+  }
+  renderStudents()
 })
