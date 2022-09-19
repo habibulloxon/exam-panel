@@ -93,7 +93,7 @@ const renderStudents = function () {
     sum += student.mark
   })
   const percent = Math.round(sum * 100 / TOTAL_MARK / students.length)
-
+    
   studentsTableBody.innerHTML = "";
   elementCount.innerHTML = `Count: ${students.length}`
   percentDisplay.innerHTML = `Average mark: ${percent}%`
@@ -136,6 +136,9 @@ form.addEventListener("submit", function(e) {
     addStudentModal.hide()
 })
 
+
+// REMOVE STUDENT
+
 studentsTable.addEventListener("click", (e) => {
 
   if(e.target.matches(".btn-outline-danger")){
@@ -147,5 +150,48 @@ studentsTable.addEventListener("click", (e) => {
 
     students.splice(clickedStudent, 1)
   }
+  renderStudents()
+})
+
+// EDIT STUDENT
+
+const editModal = document.getElementById("edit-student-modal")
+const editForm = document.getElementById("add-form")
+
+editForm.addEventListener("submit", (e) => {
+
+})
+
+
+// SORT
+
+const filterForm = document.getElementById('filter')
+
+filterForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const sortValue = e.target.elements.sortby.value
+  const searchValue = e.target.elements.search.value
+
+  students.sort((a, b) => {
+    switch (sortValue) {
+      case "1":
+        if (a.name > b.name) {
+          return 1
+        } else if(b.name > a.name){
+          return -1
+        } else{
+          return 0
+        }
+      case "2":
+        return b.mark - a.mark
+      case "3":
+        return a.mark - b.mark
+      case "4":
+        return new Date(a.markedDate).getTime() - new Date(b.markedDate).getTime()
+      default:
+
+        break;
+    }
+  })
   renderStudents()
 })
